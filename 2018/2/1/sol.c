@@ -6,21 +6,35 @@
 struct twos_threes{
 	unsigned int twos;
 	unsigned int threes;
-}
+};
 
 int compare(const void *l, const void *r){
 	return (*(char *)l - *(char *)r);
 }
 
 void check_line(char *line, struct twos_threes* v){
-	int i;
-	bool twoback = false;
+	int i = 0;
+	int sz = strlen(line);
+	/*bool twoback = false;
 	bool threeback = false;
 	for (i = 2; i < strlen(line); i++){
 		//TODO check
 		twoback = (line[i-2] == line[i]);
 		threeback = (line[i-1] == line[i]);	
-	}	
+	}*/
+	while(i < sz){
+		if(i + 1 < sz && line[i] == line[i+1]){
+			if (i+2 < sz && line[i] == line[i+2]){
+				v->threes++;
+				i+=2;	
+			}
+			else if (line[i] == line[i+1]){
+				v->twos++;
+				i++;
+			}
+		}
+		i++;
+	}
 }
 
 
@@ -43,11 +57,11 @@ int main(int argc, char **argv){
 			*nloc = '\0';
 		}
 		qsort(line, strlen(line), sizeof(char), compare);
-		check_line(line, &vals)
+		check_line(line, &vals);
 //		printf("%s\n\n", line);
 	}
 	//getline allocates for us
 	free(line);
-	printf("solution: %d\n", vals->twos * vals->threes);
+	printf("solution: %d\n", vals.twos * vals.threes);
 	return 0;
 }

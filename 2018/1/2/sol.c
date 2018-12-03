@@ -10,39 +10,48 @@
 #define OOM "OUT OF MEMORY\n"
 #define LISTLENINIT 1024
 
-static long *freqlist = NULL;
+/*static long *freqlist = NULL;
 static long listlen = 0;
-static int listrange = LISTLENINIT;
+static int listrange = LISTLENINIT;*/
+static struct llwrap *list = NULL;
+
+struct ll {
+	long v;
+	struct ll* next;
+};
+
+struct llwrap {
+	long sz;
+	struct ll* first;
+	struct ll* last;
+};
+
+
 
 bool list_contains(long val){
-	long i = 0;
-	for (i = 0; i < listlen; i++){
-		if (freqlist[i] == val)
+	if (list == NULL) return false;
+	struct ll* tmp = list->first;
+	while(tmp != NULL){
+		if (tmp->v == val)
 			return true;
+		tmp = tmp->next;
 	}
 	return false;
 }
 
 void update_list(long val){
-	if (freqlist == NULL && listlen == 0){
-		freqlist = malloc(sizeof(long)*LISTLENINIT);
-		if (freqlist == NULL){
-			fprintf(stderr, OOM);
-			exit(1);
-		}
+	if (list == NULL){
+		list = malloc(sizeof(struct llwrap));
+		list->sz == 0;
+		list->last = malloc(sizeof(struct ll));
+		list->first = list->last;
+		list->last->next = NULL;
 	}
-	freqlist[listlen] = val;
-	listlen++;
-	if(listlen >= listrange){
-		void *tmp = realloc(freqlist, listrange * 2);
-		if (tmp == NULL){
-			fprintf(stderr, OOM);
-			free(freqlist);
-			exit(1);
-		}
-		freqlist = tmp;
-		listrange = listrange * 2;
-	} 
+	list->last->v = val;
+	list->sz++;
+	list->last->next = malloc(sizeof(struct ll));
+	list->last = list->last->next;
+	list->last->next = NULL;
 }		
 
 int main(int argc, char **argv){

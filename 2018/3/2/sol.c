@@ -28,9 +28,8 @@ struct point{
 struct claim {
 	short id;
 	struct point tl;
-	//struct point tr;
-	//struct point bl;
 	struct point br;
+	bool intersect;
 };
 void init_claim(struct claim* claim, char *line){ // int id, int dleft, int dtop, int w, int h){
 	int i = 0;
@@ -64,50 +63,41 @@ void init_claim(struct claim* claim, char *line){ // int id, int dleft, int dtop
 
 	claim->id = id;
 	claim->tl.x = dleft; claim->tl.y = dtop; 
-	//claim->tr.x = dleft + w; claim->tr.y = dtop;
-	//claim->bl.x = dleft; claim->bl.y = dtop + h;
 	claim->br.x = dleft + w; claim->br.y = dtop+h;
+	claim->intersect = false;
 }
 
-void check_intersect(struct claim a, struct claim b, char grid[GRIDROWS][GRIDCOLS]){
+void mark_intersect(struct claim *a, struct claim *b){
 	//if the intersection exists, it will be a rectangle.
 	struct claim intersect;
 	int w, h, i, j;
-	intersect.tl.x = max(a.tl.x, b.tl.x);
-	intersect.tl.y = max(a.tl.y, b.tl.y);
-	intersect.br.x = min(a.br.x, b.br.x);
-	intersect.br.y = min(a.br.y, b.br.y);
+	intersect.tl.x = max(a->tl.x, b->tl.x);
+	intersect.tl.y = max(a->tl.y, b->tl.y);
+	intersect.br.x = min(a->br.x, b->br.x);
+	intersect.br.y = min(a->br.y, b->br.y);
 	//check for degeneracy (if exists areas dont intersect)
-	if (intersect.tl.x > intersect.br.x ||
+	if(intersect.tl.x > intersect.br.x ||
 		intersect.tl.y > intersect.br.y){
 		return;
 	}
-	w = intersect.br.x - intersect.tl.x;
-	h = intersect.br.y - intersect.tl.y;
-	for (i = 0; i < w; i++){
-		for (j = 0; j < h; j++){
-			grid[intersect.tl.y+j][intersect.br.x-i] = 'x';
-		}
-	}
-
+	a->intersect = b->intersect = true;
+	return;
 }
 
-int find_intersects(struct claim *claims){
-	int i, j, soln = 0;
-	char grid[GRIDROWS][GRIDCOLS] = {0};
+int find_nonintersect(struct claim *claims){
+	int i, j;
+	bool found = false;
 	for (i = 0; i < NUMCLAIMS; i++){
 		for (j = 0; j < NUMCLAIMS; j++){
 			if (i == j) break;
-			check_intersect(claims[i], claims[j], grid);
+			mark_intersect(&claims[i], &claims[j]);
 		}
 	}
-	for (i = 0; i < GRIDROWS; i++){
-		for (j = 0; j < GRIDCOLS; j++){
-			if (grid[i][j] == 'x')
-				soln++;
-		}
+	for (i = 0; i < NUMCLAIMS; i++){
+		if (!claims[i].intersect)
+		return claims[i].id;
 	}
-	return soln;
+	return 0;
 }
 
 int main(int argc, char **argv){
@@ -131,7 +121,7 @@ int main(int argc, char **argv){
 	}	
 	//getline allocates for us
 	free(line);
-	printf("solution: %d\n", find_intersects(claims));
+	printf("solution: %d\n", find_nonintersect(claims));
 	free(claims);
 	return 0;
 }

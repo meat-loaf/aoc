@@ -26,7 +26,7 @@ struct point{
 //top left, top right,
 //bottom left, bottom right
 struct claim {
-	//short id;
+	short id;
 	struct point tl;
 	//struct point tr;
 	//struct point bl;
@@ -62,7 +62,7 @@ void init_claim(struct claim* claim, char *line){ // int id, int dleft, int dtop
 		i++;
 	}
 
-	//claim->id = id;
+	claim->id = id;
 	claim->tl.x = dleft; claim->tl.y = dtop; 
 	//claim->tr.x = dleft + w; claim->tr.y = dtop;
 	//claim->bl.x = dleft; claim->bl.y = dtop + h;

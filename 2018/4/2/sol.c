@@ -146,30 +146,32 @@ void update_range(struct guard* curr, unsigned char start, unsigned char end){
 int get_checksum(struct guard* guards){
 	struct guard *sleepiest = guards;
 	int minutes = 0, i, sleepiest_min = 0;
-	for (i = 0; i < 60; i++){
+	/*for (i = 0; i < 60; i++){
 		minutes += sleepiest->minutes[i];
-	}
+	}*/
 	while(guards){	
 		int minutes_chk = 0;
-		//count how long the guard was asleep
 		for (i = 0; i < 60; i++){
-			minutes_chk += guards->minutes[i];
+			if (guards->minutes[i] > minutes){
+				sleepiest = guards;
+				minutes = guards->minutes[i];
+				sleepiest_min = i;
+			}
 		}
+		//count how long the guard was asleep
+		/*for (i = 0; i < 60; i++){
+			minutes_chk += guards->minutes[i];
+		}*/
 		//if the new guard had more minutes asleep,
 		//replace the sleepiest guard
-		if (minutes_chk > minutes){
+		/*if (minutes_chk > minutes){
 			sleepiest = guards;
 			minutes = minutes_chk;
-		}
+		}*/
 		guards = guards->next;
 	}
 	minutes = 0;
-	for (i = 0; i < 60; i++){
-		if (sleepiest->minutes[i] > minutes){
-			minutes = sleepiest->minutes[i];
-			sleepiest_min = i;
-		}
-	}
+
 	return sleepiest->id * sleepiest_min;
 }
 
